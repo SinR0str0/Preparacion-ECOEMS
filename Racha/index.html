@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Racha Diaria</title>
+  <style>
+    body {
+      font-family: 'Comic Sans MS', 'Marker Felt', 'Chalkboard SE', sans-serif;
+      background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+      margin: 0;
+      padding: 15px;
+      color: #2c3539;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: white;
+      padding: 25px;
+      border-radius: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+      border: 4px dashed #ff9a9e;
+      position: relative;
+    }
+    h1 {
+      text-align: center;
+      color: #ff6b6b;
+      margin: 20px 0 25px;
+      font-size: 2.8rem;
+      text-shadow: 2px 2px 0 #ffeaa7;
+      letter-spacing: 1px;
+    }
+    .instructions {
+      background: #e8f5e9;
+      padding: 20px;
+      border-radius: 16px;
+      margin-bottom: 25px;
+      border-left: 5px solid #4caf50;
+    }
+    .instructions ul {
+      padding-left: 20px;
+      margin: 12px 0;
+    }
+    .instructions li {
+      margin-bottom: 8px;
+    }
+    .question {
+      margin-bottom: 25px;
+      padding: 18px;
+      border-radius: 16px;
+      background: #f0f9ff;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+      border-left: 6px solid #4ecdc4;
+    }
+    .question-text {
+      font-weight: bold;
+      margin-bottom: 14px;
+      font-size: 1.2em;
+      color: #1a535c;
+    }
+    .option {
+      display: block;
+      padding: 12px 16px;
+      margin: 10px 0;
+      background: #fff;
+      border: 2px solid #e0e0e0;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      font-size: 1.05em;
+    }
+    .option:hover {
+      transform: translateY(-2px);
+      border-color: #ff9a9e;
+      background: #fff9f9;
+    }
+    .option.selected {
+      background: #ffecb3;
+      border-color: #ffb347;
+      font-weight: bold;
+      box-shadow: 0 4px 10px rgba(255, 179, 71, 0.3);
+    }
+    .option.correct {
+      background: #c8e6c9 !important;
+      border-color: #4caf50 !important;
+    }
+    .option.incorrect {
+      background: #ffcdd2 !important;
+      border-color: #f44336 !important;
+    }
+    button#start-btn, button#submit-btn {
+      display: block;
+      margin: 30px auto 20px;
+      padding: 14px 36px;
+      font-size: 1.2em;
+      background: linear-gradient(to right, #4facfe, #00f2fe);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+      font-weight: bold;
+      letter-spacing: 1px;
+      box-shadow: 0 6px 16px rgba(0, 242, 254, 0.4);
+    }
+    button#start-btn:hover, button#submit-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 20px rgba(0, 242, 254, 0.6);
+    }
+    .result {
+      text-align: center;
+      font-size: 1.4em;
+      margin: 20px 0;
+      font-weight: bold;
+      color: #4caf50;
+      animation: fadeIn 1s;
+    }
+    .timer {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      font-size: 1.1em;
+      font-weight: bold;
+      color: #d32f2f;
+      background: #ffcdd2;
+      padding: 6px 12px;
+      border-radius: 10px;
+    }
+    .hidden {
+      display: none !important;
+    }
+    .user-info {
+      text-align: center;
+      background: #e3f2fd;
+      padding: 12px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      font-weight: bold;
+      color: #0288d1;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎯 Racha Diaria</h1>
+    <div class="user-info" id="user-info">Cargando usuario...</div>
+
+    <!-- Menú de instrucciones -->
+    <div id="instructions-screen" class="instructions">
+      <h3>📋 Instrucciones</h3>
+      <ul>
+        <li>Está prohibido usar ayuda externa (apuntes, internet, etc.).</li>
+        <li>Tienes <strong>10 minutos</strong> para responder las 5 preguntas.</li>
+        <li>No es obligatorio responder todas, pero se calificarán solo las seleccionadas.</li>
+        <li>Al terminar el tiempo, se enviará automáticamente tu intento.</li>
+        <li>Tendrás desde las 01:00 hasta las 23:59 horas para realizar la racha.</li>
+        <li>¡Solo puedes hacer la racha una vez al día!</li>
+      </ul>
+      <button id="start-btn" onclick="startQuiz()">🟢 ¡Comenzar ahora!</button>
+    </div>
+
+    <!-- Contenido del quiz -->
+    <div id="quiz-content" class="hidden">
+      <div class="timer" id="timer-display">Tiempo restante: 5:00</div>
+      <div id="quiz-container"></div>
+      <button id="submit-btn" onclick="submitQuiz()">✅ Enviar ahora</button>
+    </div>
+
+    <div id="result" class="result hidden"></div>
+
+    <div style="font-size: x-small; color: #1a535c; text-align: right; font-family: 'Comic Sans MS', 'Marker Felt', 'Chalkboard SE', sans-serif;">
+      Elaborado por: <a href="https://discord.gg/n4aPG2PKYY" target="_blank">Sin_R0str0</a>
+    </div>
+  </div>
+
+  <script src="quiz.js"></script>
+</body>
+</html>
