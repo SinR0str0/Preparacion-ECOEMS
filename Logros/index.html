@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logros Desbloqueados</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Main Container -->
+    <div class="container">
+        <div class="Titulo"><h1>Mis Logros</h1></div>
+
+        <div id="streakSection" class="streak-section">
+            <div class="streak-icon">
+              <span class="streak-emoji">🔥</span>
+            </div>
+            <div class="streak-info">
+              <div class="streak-label">Racha actual:</div>
+              <div id="currentStreak" class="streak-value">Cargando...</div>
+            </div>
+          </div>
+
+        <div class="progress-container">
+            <div class="progress-label">
+              Logros desbloqueados: <span id="progressCount">0</span> / <span id="totalBadges">50</span>
+            </div>
+            <div class="progress-bar">
+              <div id="progressFill" class="progress-fill" style="width: 0%"></div>
+            </div>
+        </div>
+        <!-- Pokédex Device -->
+        <div class="pokedex-shell">
+            <!-- Screen Container -->
+            <div class="screen-container">
+                <div class="crt-effect"></div>
+                <div class="scanlines"></div>
+                
+                <!-- Image Grid -->
+                <div id="imageGrid" class="image-grid"></div>
+
+                <!-- Navigation Controls -->
+                <div class="navigation-controls">
+                    <button id="prevBtn" class="nav-button">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                    </button>
+                    <div class="page-indicator">
+                        <span id="pageInfo">1 / 3</span>
+                    </div>
+                    <button id="nextBtn" class="nav-button">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detail Panel -->
+    <div id="overlay" class="overlay"></div>
+    <div id="detailPanel" class="detail-panel">
+        <div class="panel-header">
+            <div class="panel-logo-section">
+                <img src="Logo.png" alt="Pokédex Logo" class="panel-logo">
+                <h2>Logros</h2>
+            </div>
+            <button id="closeBtn" class="close-button">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+
+        <div class="panel-content">
+            <div class="panel-image-container">
+                <img id="panelImage" src="" alt="" class="panel-image">
+            </div>
+
+            <div class="panel-info">
+                <div class="info-section">
+                    <div class="info-label">ID</div>
+                    <div id="panelId" class="info-value id-value">#001</div>
+                </div>
+
+                <div class="info-section">
+                    <div class="info-label">NOMBRE</div>
+                    <div id="panelTitle" class="info-value title-value">Pokémon</div>
+                </div>
+
+                <div class="info-section">
+                    <div class="info-label">DESCRIPCIÓN</div>
+                    <div id="panelDescription" class="info-value description-value">
+                        Descripción del Pokémon...
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <div class="info-label">ESTADO</div>
+                    <div id="panelStatus" class="status-badge">
+                        <div class="status-dot"></div>
+                        <span>Capturado</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
