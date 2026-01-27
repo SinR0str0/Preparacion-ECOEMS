@@ -128,6 +128,24 @@
   }
   
   /* Image Grid */
+  .img-wrapper {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .grid-item img.gris {
+    filter: brightness(0);;
+  }
+
   .image-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));

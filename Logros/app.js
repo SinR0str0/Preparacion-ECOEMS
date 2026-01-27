@@ -31,17 +31,32 @@ function renderImageGrid() {
         gridItem.className = entry ? 'grid-item' : 'grid-item empty';
         
         if (entry) {
+            const imgWrapper = document.createElement('div');
+            imgWrapper.className = 'img-wrapper';
+
             const img = document.createElement('img');
-            img.src = entry.Completed ? `Insignias/${entry.ID}.png` : 'Errores/error.png';
+            img.src = `Insignias/${entry.ID}.png`;
             img.alt = entry.Título;
             img.className = entry.Completed ? 'visual' : 'gris';
             img.onerror = () => { img.src = 'Errores/error.png'; };
-            gridItem.appendChild(img);
+
+            imgWrapper.appendChild(img);
+
+            // Si no está completado, añadimos un overlay oscuro
+            if (!entry.Completed) {
+                const overlay = document.createElement('div');
+                overlay.className = 'badge-overlay';
+                imgWrapper.appendChild(overlay);
+            }
+
+            gridItem.appendChild(imgWrapper);
             gridItem.addEventListener('click', () => openDetailPanel(entry));
         } else {
             const placeholder = document.createElement('div');
             placeholder.className = 'placeholder';
-            placeholder.textContent = '?';
+            const img = document.createElement('img');
+            img.src = 'Errores/error.png';
+            placeholder.appendChild(img);
             gridItem.appendChild(placeholder);
         }
         

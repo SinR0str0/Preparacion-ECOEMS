@@ -1,11 +1,8 @@
 // === CONFIGURACIÓN ===
-const SHEET_ID = '1Vg24glEQ1EklNoAxz1T6-JtyX8CY1Sbdt6IrmbWCFz4';
-const GID_PREGUNTAS = '2065748319';
-const USER_KEY_FULL = 'quiz_user_full';
-const FORM_RESPONSE_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSfpwl7CuOfWvCyg6DNYUSQEURIvK9hkdULYLPNuqmqjEDv1BA/formResponse';
+const { SHEET_ID, GID_QUESTIONS, USER_KEY_FULL, FORM_RESPONSE_URL, RANKING_CSV_URL, QUESTIONS_CSV_URL, CURRENT_USERNAME, SHEETS_URL } = CONFIG;
 
-const QUESTIONS_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID_PREGUNTAS}`;
-const RANKING_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
+const QUESTIONS_URL = CONFIG.QUESTIONS_CSV_URL();
+const RANKING_URL = CONFIG.RANKING_CSV_URL();
 
 let questions = [];
 let startTime = null;
@@ -111,10 +108,6 @@ function normalizeDateFromSheet(dateStr) {
   return null;
 }
 
-function getCurrentUser() {
-  return localStorage.getItem(USER_KEY_FULL) || 'Amiguito';
-}
-
 // === RENDERIZAR PREGUNTAS ===
 function renderQuiz(showFeedback = false) {
   const container = document.getElementById('quiz-container');
@@ -180,21 +173,18 @@ async function submitQuiz(isAuto = false) {
   if (quizSubmitted) return;
   quizSubmitted = true;
   clearInterval(timerInterval);
-
+  document.getElementById('analysis-overlay')?.classList.remove('hidden');
+  let accepteds = []
   let score = 0, answered = 0;
-  questions.forEach(q => {
+  questions.forEach((q, index) => {
     if (q.userAnswer !== undefined) {
       answered++;
-      if (q.options[q.userAnswer]?.correct) score++;
+      if (q.options[q.userAnswer]?.correct) {score++; accepteds.push(index);}
     }
   });
 
-  document.getElementById('result').textContent = `🎊 ¡Puntaje: ${score} de 5! (${answered} respondidas)`;
-  document.getElementById('result').classList.remove('hidden');
-  document.getElementById('submit-btn').classList.add('hidden');
-
   const totalTime = Math.round((Date.now() - startTime) / 1000);
-  const userName = getCurrentUser();
+  const userName = CONFIG.CURRENT_USERNAME();
   const date = getTodayStringMexico();
 
   const formData = new URLSearchParams();
@@ -203,17 +193,28 @@ async function submitQuiz(isAuto = false) {
   formData.append('entry.790339546', totalTime);
   formData.append('entry.820356876', date);
 
+
   try {
-    await fetch(FORM_RESPONSE_URL, {
+    await fetch(CONFIG.FORM_RESPONSE_URL, {
       method: 'POST',
       mode: 'no-cors',
       credentials: 'omit',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: formData
-    });
-  } catch (e) {}
+    });    
+    await validateAndUnlockBadges(userName,score,totalTime,getMexicoTime(),accepteds);
+  } catch (e) {
+    console.warn('Error durante el envío o validación:', e);
+  } finally {
+    document.getElementById('analysis-overlay')?.classList.add('hidden');
+  }
 
-  if (!isAuto) renderQuiz(true);
+  document.getElementById('result').textContent = `🎊 ¡Puntaje: ${score} de 5! (${answered} respondidas)`;
+  document.getElementById('result').classList.remove('hidden');
+  document.getElementById('submit-btn').classList.add('hidden');
+  if (!isAuto) {
+    renderQuiz(true);
+  }
   showCountdownTo1AM();
 }
 
@@ -297,7 +298,7 @@ window.startQuiz = async function () {
 
 // === INICIALIZAR ===
 document.addEventListener('DOMContentLoaded', async () => {
-  const userName = getCurrentUser();
+  const userName = CONFIG.CURRENT_USERNAME();
   document.getElementById('user-info').textContent = `😊 ¡Hola, ${userName}!`;
 
   // Verificar si es entre 12:00 AM y 1:00 AM

@@ -34,13 +34,59 @@
 
     <div id="result" class="result hidden"></div>
 
+    <!-- Botón de Ver Logros -->
+    <div style="text-align: center; margin: 20px 0;">
+      <a href="https://cursoecoemsjaz.milaulas.com/mod/resource/view.php?id=294" target="_blank" style="
+        display: inline-block;
+        padding: 10px 20px;
+        background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+        color: #d62976;
+        text-decoration: none;
+        border-radius: 50px;
+        font-weight: bold;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        transition: transform 0.2s;
+      " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+        🏆 Ver mis logros
+      </a>
+    </div>
+
     <div style="font-size: x-small; color: #1a535c; text-align: right; font-family: 'Comic Sans MS', 'Marker Felt', 'Chalkboard SE', sans-serif;">
       Elaborado por: <a href="https://discord.gg/n4aPG2PKYY" target="_blank">Sin_R0str0</a>
     </div>
+
+    <!-- Animación de carga (oculta por defecto) -->
+    <div id="analysis-overlay" class="hidden" style="
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(255, 255, 255, 0.95);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      font-family: 'Comic Sans MS', sans-serif;
+    ">
+      <div style="font-size: 2em; margin-bottom: 20px;">🔍</div>
+      <div style="font-size: 1.4em; color: #1a535c; font-weight: bold;">
+        Analizando respuestas...
+      </div>
+      <div style="margin-top: 20px; width: 60px; height: 60px; border: 6px solid #e0e0e0; border-top: 6px solid #1a535c; border-radius: 50%; animation: spin 1.2s linear infinite;"></div>
+    </div>
+
+    <style>
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .hidden {
+      display: none !important;
+    }
+    </style>
   </div>
 
   <script src="config.js"></script>
-  <script src="quiz.js"></script>
   <script src="badges.js"></script>
+  <script src="quiz.js"></script>
+  <script src="konami.js"></script>
 </body>
 </html>

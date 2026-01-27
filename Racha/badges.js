@@ -1,4 +1,3 @@
-// badges.js
 let pokedexData = [];
 let previousPokedexData = [];
 
@@ -54,7 +53,7 @@ async function loadPokedexData() {
     }
 
     const headers = parseCSVRow(lines[0]);
-    const userName = localStorage.getItem(CONFIG.USER_KEY_FULL) || 'Amiguito';
+    const userName = CONFIG.CURRENT_USERNAME();
     const userColIndex = headers.findIndex(header => header.trim() === userName.trim());
 
     pokedexData = [];
@@ -83,7 +82,7 @@ async function loadPokedexData() {
 
 // === CARGAR RACHA ACTUAL ===
 async function loadCurrentStreak() {
-  const userName = localStorage.getItem(CONFIG.USER_KEY_FULL)?.trim();
+  const userName = CONFIG.CURRENT_USERNAME();
   if (!userName) return 0;
 
   try {
@@ -127,10 +126,16 @@ function playUnlockSound() {
 }
 
 function showBadgeNotification(badgeName) {
+  // Contar notificaciones existentes
+  playUnlockSound();
+  const existing = document.querySelectorAll('.badge-notification');
+  const offset = 20 + existing.length * 80; // 60px alto + 10px margen
+
   const notification = document.createElement('div');
+  notification.className = 'badge-notification'; // para selección fácil
   notification.style.cssText = `
     position: fixed;
-    top: 20px;
+    top: ${offset}px;
     right: 20px;
     background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
     color: white;
@@ -148,18 +153,17 @@ function showBadgeNotification(badgeName) {
   notification.innerHTML = `<span style="font-size:24px">🏅</span><span>¡Nueva insignia!<br>${badgeName}</span>`;
   document.body.appendChild(notification);
 
+  // Eliminar tras 4 segundos
   setTimeout(() => {
-    if (notification.parentNode) notification.remove();
-  }, 4000);
+    if (notification.parentNode) {
+      notification.remove();
+    }
+  }, 5000);
 }
 
 // Inyectar animaciones CSS
 (function injectAnimations() {
   const style = document.createElement('style');
-  style.textContent = `
-    @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-    @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; transform: translateY(-20px); } }
-  `;
   document.head.appendChild(style);
 })();
 
@@ -178,37 +182,70 @@ async function checkAndAssignBadges() {
   }
 
   if (newlyUnlocked.length > 0) {
-    playUnlockSound();
-    newlyUnlocked.forEach(badge => showBadgeNotification(badge.Título));
+    for (const badge of newlyUnlocked) {
+      showBadgeNotification(badge.Título);
+      await new Promise(resolve => setTimeout(resolve, 500)); // 0.5 segundos
+    }
   }
 
   previousPokedexData = [...newData];
 }
 
-// === INICIALIZAR BADGES ===
-async function initializeBadges() {
-  await loadPokedexData();
+async function validateAndUnlockBadges(userName,score,totalTime,now, A) {
+  const day = now.getDay();
+  const month = now.getMonth();
   
-  // Actualizar progreso
-  const total = pokedexData.length;
-  const completed = pokedexData.filter(e => e.Completed).length;
-  const pct = total > 0 ? (completed / total) * 100 : 0;
+  const hour = now.getHours();
+  const minute = now.getMinutes();
 
-  const elCount = document.getElementById('progressCount');
-  const elTotal = document.getElementById('totalBadges');
-  const elFill = document.getElementById('progressFill');
-  if (elCount) elCount.textContent = completed;
-  if (elTotal) elTotal.textContent = total;
-  if (elFill) elFill.style.width = `${pct}%`;
+  await loadPokedexData();
+  previousPokedexData = [...pokedexData]; 
+  const data = {
+    userName: userName,
+    respuestasPorId: {
+      "1": true,
+      "2": score==5,
+      "31": totalTime<=30,
+      "32": totalTime>=300,
+      "33": day === 0 || day === 6,
+      "34": hour<8,
+      "35": (hour>22||(hour==22 && minute>0)),
+      "36": totalTime>=595,
+      "37": totalTime<=120,
+      "41": day==13 && month==6,
+      "45": false
+    },
+    acceptedIndices: A
+  };
+  // 1. Llamar al Web App para que evalúe todas las reglas y marque insignias en Sheets
+  try {
+    const webAppUrl = CONFIG.SHEETS_URL();
 
-  // Cargar y mostrar racha
-  const streak = await loadCurrentStreak();
-  const elStreak = document.getElementById('currentStreak');
-  if (elStreak) elStreak.textContent = streak;
+    const response = await fetch(webAppUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: new URLSearchParams({
+        userName: userName,
+        acceptedIndices: JSON.stringify(data["acceptedIndices"]),
+        respuestasPorId: JSON.stringify(data["respuestasPorId"])
+      })
+    })
+    console.log(response);
+    if (!response.ok) {
+      throw new Error(`HTTP error ${response.status}`);
+    }
+    
+    const result = await response.json();
+    console.log(result);
+    if (!result.success) {
+      console.warn('Web App no actualizó insignias:', result);
+    }
+  } catch (err) {
+    console.error('Error al validar insignias en servidor:', err);
+  }
 
-  // Guardar estado inicial
-  previousPokedexData = [...pokedexData];
+  // 3. Recargar datos de insignias y detectar nuevas
+  await checkAndAssignBadges();
 }
-
-// Ejecutar al cargar
-document.addEventListener('DOMContentLoaded', initializeBadges);
