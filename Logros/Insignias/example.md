@@ -1,0 +1,1 @@
+Para cargar las insignias correctamente, asegúrate de tener imagenes con el formato {ID}.png en esta carpeta, el ID debe corresponder al mostrado en el Google Sheets en la pestaña de BADGES_ID en Config.
